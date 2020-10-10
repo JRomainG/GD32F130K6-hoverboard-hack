@@ -22,20 +22,19 @@ The sideboard has a 4-pin debugging header with a 3V3, SWDIO, SWCLK, and GND inp
 The chip itself is a GD32 F130K6, for which you can find a datasheet [here](doc/GD32F130xx_Datasheet_Rev3.1.pdf):
 
 <p float="left">
-  <img alt="Hoverboard master sideboard" />
-</p>
-**Pro tip :** We recommand plugging plugable standard pin, making debugging and flashing easier and testing faster (in the absolutly unprobable case where you don't succeed first try) even when the PCB is fully assembled on the chassis. 
-**Pro tip #2 :** Put a peace of tape on the speaker of the slave board, this just might save your ears during the hacking process.
-
-//ajouter photo de la board avec les pin de debug et le bout de scotch
-
-**Note :** The motherboards detect the orientation of the hoverboard for safety reason, so you may find yourself trying to unlock the chip but instead making the board beeping and making it unstopable unless you unplugged the battery. Keep in mind that you can reset the board by pushing the on/off button once, then pressing it 5sec while the hoverboard is leveled. 
-
-<p float="left">
-  <src="images/GD32F130K6_datasheet_pins.png" width="49%"/>
+  <img alt="Hoverboard master sideboard" src="images/GD32F130K6_chip.jpg" width="49%"/>
+  <img alt="GD32F130K6 pin mapping" src="images/GD32F130K6_datasheet_pins.png" width="49%"/>
 </p>
 
 **Important:** The "dot" on the datasheet's schematics used to indicate the orientation is located at the *bottom left* of the chip when the text is upright, contrary to what you might expect.
+
+**Helpful notes:**
+
+* We recommend plugging a [pin header](https://en.wikipedia.org/wiki/Pin_header) to make debugging and flashing easier, as well as testing faster (in the improbable case where you don't succeed first try). It also makes the pins accessible when the PCB is fully assembled on the chassis.
+* Put a piece of tape on the speaker of the slave board, this just might save your ears during the hacking process.
+* The motherboards detect the orientation of the hoverboard for safety reasons, so you may find yourself trying to unlock the chip but instead making the board beep, and being unable to turn it off without unplugging the battery. Keep in mind that you can reset the board by pushing the on/off button once, then pressing it for 5 secondes while the hoverboard is leveled. 
+
+**TODO:** Add a picture of the board with the debug pins and the of tape.
 
 Here are some of the pins located on a real board:
 
@@ -45,7 +44,7 @@ Since the 3V3, GND, SWDIO and SWCLK are already connected to the debugging heade
 
 ## Flashing
 
-For this setup, you can completly disconnect the sideboards from the rest of the equipment, including the battery. We recommand working on them while totaly disconnected from any hardware for practicality. You must have access to an ST-LINK v2 like the following:
+For this setup, you can completly disconnect the sideboards from the rest of the equipment, including the battery. We recommend working on them while totaly disconnected from any hardware for practicality. You must have access to an ST-LINK v2 like the following:
 
 ![ST-LINK v2](images/stlink.jpg)
 
@@ -59,8 +58,7 @@ At this points, you can plug the ST-LINK in your computer and use [ST-LINK utili
 
 Now, the NRST pin must be taken care of. Because it is not connected to the debugging header, you need to find a way to manually connect a cable. It is considerably easier to access the first component to which the pin is connected than the pin itself, as it is bigger and there is less risk of creating a short.
 
-**NRST stands for Not ReSeT** wich means that if the Stlink sends a 1 bit on the RST pin, the NRST pin must receive a 0 and if it's a 0 on the RST, it must be a 1 on the NRST of the GD32 you got it.
-The ST-LINK has an RST pin that we'd like to connect to our GD32. However, its output must be inverted before being connected to the NRST pin. To do this, we used an Arduino Mega with a very simple program:
+NRST stands for "Not ReSeT", which means that if the ST-Link sends a '1' bit on the RST pin, the NRST pin on the GD32 must receive a 0 instead (and vice versa). To do so, we used an Arduino Mega with a very simple program:
 
 ```C
 void setup() {
@@ -74,9 +72,9 @@ void loop() {
 }
 ```
 
-Because the output is 5.5V, and we can't use PWM considering our use case (because it would interfer with the GD32 clocking), we added a simple voltage divider to match the GD32's expected 3.3V amplitude on the NRST pin.
+Because the output is 5.5V, and we can't use PWM considering our use case, we added a simple voltage divider to match the GD32's expected 3.3V amplitude on the NRST pin.
 
-//ajouter schémas pont diviseur de tension
+**TODO:** Add a diagram showing our setup and the voltage divider.
 
 **Note:** The same result could be achieved in an easier fashion by using simple transistors, but we used what was handy. It would also probably reduce the delay between the ST-LINK and the GD32, which might make the whole procedure more reliable. 
 Our procedure isn't plug'n'play'n'it'works, you may have to try few times (for us, less than 10 times) the following procedure to get results, but it works.
@@ -118,24 +116,22 @@ stlink_usb.c:788 stlink_usb_error_check(): unknown/unexpected STLINK status code
 
 However, we were able to successfully run the OpenOCD command with the following procedure:
 
-* **Step 1** :Unplug the ST-LINK from your computer so the GD32 is unpowered.
-* **Step 2** :Plug the NRST pin with the inverter setup.
-* **Step 3** :Powerup the ST-LINK by plugging it to your computer and wait a few seconds.
-* **Step 4** :Run the command. 
-* **Step 5** :Unplug the NRST pin.
-* **Step 6** :Run the command again.
-The goal here is to send the OpenOCD command at the right timing in the GD32 starting procedure. If it doesn't work, try again but executing **Step 5** before **Step 4**. You can try as well executing **Step 5** while the OpenOCD command is running. It's all about having the right timing.
+* **Step 1:** Unplug the ST-LINK from your computer so the GD32 is unpowered.
+* **Step 2:** Plug the NRST pin with the inverter setup.
+* **Step 3:** Powerup the ST-LINK by plugging it to your computer and wait a few seconds.
+* **Step 4:** Run the OpenOCD command. 
+* **Step 5:** Unplug the NRST pin.
+* **Step 6:** Run the command again.
 
-If it works, OpenOCD shouldn't exit and you should be able to spot the following message:
+The goal here is to send the OpenOCD command at the right timing in the GD32 starting procedure. If it doesn't work, try again but execute **Step 5** before **Step 4**.
+
+You can also try executing **Step 5** while the OpenOCD command is running. It's all about having the right timing. As this isn't very reproducible, it hopefully won't be necessary.
+
+If it works, OpenOCD should keep running and you should be able to spot the following message:
 
 ```
 options.c:63 configuration_output_handler(): stm32x unlocked.
 ```
-// est ce qu'on met les autres message de debug ?
-
-**If that doesn't work, you can try the same steps but by disconnecting the NRST pin before running the command the first time (and making sure you wait a few seconds holding it in after plugging the ST-LINK).
-
-**It that still doesn't work, try playing with the timing at which you unplug the NRST pin (right after launching the OpenOCD command, after a small delay...). In our experience, that was unnecesary as the previous procedure worked correctly.** t'es sûr ? 
 
 Once you're able to run the OpenOCD command, you can follow [EmanuelFeru's tutorial](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC/wiki/How-to-Unlock-MCU-flash) using ST-Link utility if need-be (your GD32 may already be unlocked thanks to the OpenOCD command). Make sure to stop OpenOCD before following the tutorial or both programs might conflict with one another.
 
@@ -144,6 +140,8 @@ Once you're able to run the OpenOCD command, you can follow [EmanuelFeru's tutor
 ### Flashing
 
 The hard part is done, now you're in known territory. The easiest was of doing things is following [EmanuelFeru's tutorial](https://github.com/EmanuelFeru/hoverboard-sideboard-hack-GD#flashing) with the associated firmware.
+
+**Note:** For now, the linked firmware probably won't work as the pin mapping is different from the one of our chip. It shouldn't be too hard to get it working, but this is a work in progress.
 
 ## Resources
 
