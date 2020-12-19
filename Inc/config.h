@@ -28,8 +28,8 @@
 #define START_FRAME      0xAAAA     // serial command start-of-frame magic word
 
 // ############################### GENERAL ###############################
-#define AUXBOARD
-//#define MAINBAORD
+//#define AUXBOARD
+#define MAINBOARD
 
 // How to calibrate: connect GND and RX of a 3.3v uart-usb adapter to the right sensor board cable (be careful not to use the red wire of the cable. 15v will destroy everything.). if you are using nunchuck, disable it temporarily. enable DEBUG_SERIAL_USART3 and DEBUG_SERIAL_ASCII use asearial terminal.
 

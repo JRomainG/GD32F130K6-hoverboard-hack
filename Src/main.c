@@ -77,7 +77,11 @@ void poweroff() {
 	#endif
 
 	#ifdef MAINBOARD
-		delay_1ms(100);
+		buzzerPattern = 0;
+		enable = 0;
+		delay_1ms(800);
+		gpio_bit_write(BUZZER_PWR_PORT, BUZZER_PWR_PIN, 0);
+		while(1) {}
 	#endif
 }
 
@@ -92,7 +96,8 @@ int main(void)
 	exti_config();
 
 	#ifdef MAINBOARD
-		gpio_bit_write(BUZZER_ONPWR_GPIO_Port, BUZZER_ONPWR_Pin, 1);
+		gpio_bit_write(BUZZER_PWR_PORT, BUZZER_PWR_PIN, 1);
+		delay_1ms(800);
 	#endif
 
 	#ifdef AUXBOARD
@@ -177,9 +182,9 @@ int main(void)
 
 		#ifdef MAINBOARD
 			// ####### POWEROFF BY POWER-BUTTON #######
-			if (HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN) && weak_m == 0) {
+			if (gpio_input_bit_get(PWR_BUTTON_PORT, PWR_BUTTON_PIN) == 1 && weak_m == 0) {
 				enable = 0;
-				while (HAL_GPIO_ReadPin(BUTTON_PORT, BUTTON_PIN)) {}
+				while (gpio_input_bit_get(PWR_BUTTON_PORT, PWR_BUTTON_PIN)) {}
 				poweroff();
 			}
 

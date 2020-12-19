@@ -192,21 +192,23 @@ void DMA_Channel0_IRQHandler() {
 
   //blockPhaseCurrent(pos_m, adc_buffer.r1 - offsetr1, adc_buffer.r2 - offsetr2, &cur);
 
-  //create square wave for buzzer
-  buzzerTimer++;
-  if (buzzerFreq != 0 && (buzzerTimer / 7000) % (buzzerPattern + 1) == 0) {
-    if (buzzerTimer % buzzerFreq == 0) {
-      if(buzOn == TRUE) {
-         buzOn = FALSE;
-         gpio_bit_reset(BUZZER_PWR_PORT, BUZZER_PWR_PIN);
-      } else {
-        buzOn = TRUE;
-        gpio_bit_set(BUZZER_PWR_PORT, BUZZER_PWR_PIN);
+  #ifdef AUXBOARD
+    //create square wave for buzzer
+    buzzerTimer++;
+    if (buzzerFreq != 0 && (buzzerTimer / 7000) % (buzzerPattern + 1) == 0) {
+      if (buzzerTimer % buzzerFreq == 0) {
+        if(buzOn == TRUE) {
+           buzOn = FALSE;
+           gpio_bit_reset(BUZZER_PWR_PORT, BUZZER_PWR_PIN);
+        } else {
+          buzOn = TRUE;
+          gpio_bit_set(BUZZER_PWR_PORT, BUZZER_PWR_PIN);
+        }
       }
+    } else {
+        gpio_bit_reset(BUZZER_PWR_PORT, BUZZER_PWR_PIN);
     }
-  } else {
-      gpio_bit_reset(BUZZER_PWR_PORT, BUZZER_PWR_PIN);
-  }
+  #endif
 
   blockPWM(pwm_m, pos_m, &u, &v, &w);
 
