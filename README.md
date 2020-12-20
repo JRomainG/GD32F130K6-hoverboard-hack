@@ -5,7 +5,7 @@ This repository shows the steps to unlock the hoverboard sideboards and flash a 
 ## Identifying the hoverboard
 
 Multiple different hoverboard models exist, you should find the right repository for your device.
-Here, we are using ([this board](https://www.amazon.fr/gp/product/B07P1Y83MG/ref=ppx_yo_dt_b_asin_title_o03_s00?ie=UTF8&psc=1)), wich needs as a specific procedure to flash it, described below. 
+Here, we are using ([this board](https://www.amazon.fr/gp/product/B07P1Y83MG/ref=ppx_yo_dt_b_asin_title_o03_s00?ie=UTF8&psc=1)), which needs as a specific procedure to flash it, described below.
 
 * For older models with only one motherboard, see [the FOC repository](https://github.com/EmanuelFeru/hoverboard-firmware-hack-FOC),
 * For models with 2 sideboards, the chip must be identified:
@@ -32,7 +32,7 @@ The chip itself is a GD32 F130K6, for which you can find a datasheet [here](doc/
 
 * We recommend plugging a [pin header](https://en.wikipedia.org/wiki/Pin_header) to make debugging and flashing easier, as well as testing faster (in the improbable case where you don't succeed first try). It also makes the pins accessible when the PCB is fully assembled on the chassis.
 * Put a piece of tape on the speaker of the slave board, this just might save your ears during the hacking process.
-* The motherboards detect the orientation of the hoverboard for safety reasons, so you may find yourself trying to unlock the chip but instead making the board beep, and being unable to turn it off without unplugging the battery. Keep in mind that you can reset the board by pushing the on/off button once, then pressing it for 5 secondes while the hoverboard is leveled. 
+* The motherboards detect the orientation of the hoverboard for safety reasons, so you may find yourself trying to unlock the chip but instead making the board beep, and being unable to turn it off without unplugging the battery. Keep in mind that you can reset the board by pushing the on/off button once, then pressing it for 5 secondes while the hoverboard is leveled.
 
 **TODO:** Add a picture of the board with the debug pins and the of tape.
 
@@ -76,7 +76,7 @@ Because the output is 5.5V, and we can't use PWM considering our use case, we ad
 
 **TODO:** Add a diagram showing our setup and the voltage divider.
 
-**Note:** The same result could be achieved in an easier fashion by using simple transistors, but we used what was handy. It would also probably reduce the delay between the ST-LINK and the GD32, which might make the whole procedure more reliable. 
+**Note:** The same result could be achieved in an easier fashion by using simple transistors, but we used what was handy. It would also probably reduce the delay between the ST-LINK and the GD32, which might make the whole procedure more reliable.
 Our procedure isn't plug'n'play'n'it'works, you may have to try few times (for us, less than 10 times) the following procedure to get results, but it works.
 
 Here's a look at our quick and dirty setup:
@@ -96,7 +96,7 @@ We used [OpenOCD](http://openocd.org) to launch commands and check if our reset 
 The first few times, we ran into errors such as:
 
 ```
-Error: init mode failed (unable to connect to the target) 
+Error: init mode failed (unable to connect to the target)
 ```
 
 ```
@@ -119,7 +119,7 @@ However, we were able to successfully run the OpenOCD command with the following
 * **Step 1:** Unplug the ST-LINK from your computer so the GD32 is unpowered.
 * **Step 2:** Plug the NRST pin with the inverter setup.
 * **Step 3:** Powerup the ST-LINK by plugging it to your computer and wait a few seconds.
-* **Step 4:** Run the OpenOCD command. 
+* **Step 4:** Run the OpenOCD command.
 * **Step 5:** Unplug the NRST pin.
 * **Step 6:** Run the command again.
 
@@ -141,13 +141,22 @@ Once you're able to run the OpenOCD command, you can follow [EmanuelFeru's tutor
 
 The hard part is done, now you're in known territory. The easiest was of doing things is following [EmanuelFeru's tutorial](https://github.com/EmanuelFeru/hoverboard-sideboard-hack-GD#flashing) with the associated firmware.
 
-**Note:** For now, the linked firmware probably won't work as the pin mapping is different from the one of our chip. It shouldn't be too hard to get it working, but this is a work in progress.
+### Connection
+
+**TODO:** Add picture/diagram of the board and connections. Most are all common sense but the ADC and USART require special connections.
+
+For the ADC to work, you must change the link cable between boards from the 4-pin blue plug to the 4-pin white plug next to it (see diagram). You can then use the pin labeled in the diagram for the ADC input.
+
+For the USART to work, you CANNOT use the labeled tx/rx empty vias on the board due to them being tied to the bldc output. You must use the one labeled in the diagram.
+
+**Note:** For my arduino to receive correct tx transmission, you must jumper or bridge the resistor on the tx output line, labeled in the diagram.
 
 ## Resources
 
 * [EmanuelFeru's hoverboard repository](https://github.com/EmanuelFeru/hoverboard-sideboard-hack-GD).
 * [Hooover Telegram group](https://t.me/joinchat/BHWO_RKu2LT5ZxEkvUB8uw).
 * [Phil Malone's "Hoverboards for Assistive Devices" post](https://hackaday.io/project/170932-hoverboards-for-assistive-devices).
+* [Niklas Fauth's hoverboard repository](https://github.com/NiklasFauth/hoverboard-firmware-hack).
 
 ## Special thanks
 
