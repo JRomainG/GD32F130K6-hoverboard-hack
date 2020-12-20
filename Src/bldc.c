@@ -214,9 +214,9 @@ void DMA_Channel0_IRQHandler() {
 
   int weaku, weakv, weakw;
   if (pwm_m > 0) {
-    blockPWM(weak_m, (pos_m+5) % 6, &weaku, &weakv, &weakw);
+    blockPWM(weak_m, (pos_m+1) % 6, &weaku, &weakv, &weakw);
   } else {
-    blockPWM(-weak_m, (pos_m+1) % 6, &weaku, &weakv, &weakw);
+    blockPWM(-weak_m, (pos_m+5) % 6, &weaku, &weakv, &weakw);
   }
   u += weaku;
   v += weakv;
